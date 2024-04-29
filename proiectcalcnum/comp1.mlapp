@@ -1,0 +1,133 @@
+ % Properties that correspond to underlying components
+    properties (Access = private, Transient, NonCopyable)
+        RezultateTextArea           matlab.ui.control.TextArea
+        RezultateTextAreaLabel      matlab.ui.control.Label
+        calculeazButton             matlab.ui.control.Button
+        VectoriniialEditField       matlab.ui.control.EditField
+        VectoriniialEditFieldLabel  matlab.ui.control.Label
+        MatriceaAEditField          matlab.ui.control.EditField
+        MatriceaAEditFieldLabel     matlab.ui.control.Label
+        UIAxes                      matlab.ui.control.UIAxes
+    end
+
+    
+    methods (Access = public)
+        
+        function results = func(comp, A, x0)
+            % Implementarea metodei puterii (metoda iterativă vectorială)
+            max_iter = 100; % Numărul maxim de iterații
+            x = x0;
+            eigenvectors = zeros(length(x), max_iter);
+
+            for i = 1:max_iter
+                x = A * x;
+                x = x / norm(x);
+                eigenvectors(:, i) = x;
+            end
+
+            rayleigh_coef = x' * A * x / (x' * x);
+            dominant_eigenvalue = rayleigh_coef;
+            dominant_eigenvector = x;
+            
+            % Afisare rezultate
+            results = sprintf('Dominant eigenvalue: %.3f\n', dominant_eigenvalue);
+            results = [results, 'Dominant eigenvector:', newline];
+            results = [results, mat2str(dominant_eigenvector), newline];
+            
+            % Plot eigenvectors
+            plotEigenvectors(comp, eigenvectors);
+            
+            % Return results
+            comp.ResultsTextArea.Value = results;
+        end
+    end
+    
+
+    % Callbacks that handle component events
+    methods (Access = private)
+
+        % Button pushed function: calculeazButton
+        function calculeazButtonPushed(comp, event)
+            
+            A = eval(comp.MatriceaAEditField.Value);
+            x0 = eval(comp.VectoriniialEditField.Value);
+            
+            % Calculează metoda puterii
+            results = func(comp, A, x0);
+        end
+    end
+
+    methods (Access = protected)
+        
+        % Code that executes when the value of a public property is changed
+        function update(comp)
+            % Use this function to update the underlying components
+            
+        end
+
+        % Create the underlying components
+        function setup(comp)
+
+            comp.Position = [1 1 605 386];
+            comp.BackgroundColor = [0.94 0.94 0.94];
+
+            % Create UIAxes
+            comp.UIAxes = uiaxes(comp);
+            title(comp.UIAxes, 'Reprezentarea grafică')
+            xlabel(comp.UIAxes, 'X')
+            ylabel(comp.UIAxes, 'Y')
+            zlabel(comp.UIAxes, 'Z')
+            comp.UIAxes.Position = [2 10 300 185];
+
+            % Create MatriceaAEditFieldLabel
+            comp.MatriceaAEditFieldLabel = uilabel(comp);
+            comp.MatriceaAEditFieldLabel.HorizontalAlignment = 'right';
+            comp.MatriceaAEditFieldLabel.FontSize = 14;
+            comp.MatriceaAEditFieldLabel.FontColor = [0.302 0.7451 0.9333];
+            comp.MatriceaAEditFieldLabel.Position = [30 341 73 26];
+            comp.MatriceaAEditFieldLabel.Text = 'Matricea A';
+
+            % Create MatriceaAEditField
+            comp.MatriceaAEditField = uieditfield(comp, 'text');
+            comp.MatriceaAEditField.FontSize = 14;
+            comp.MatriceaAEditField.FontColor = [0.302 0.7451 0.9333];
+            comp.MatriceaAEditField.Position = [112 345 100 22];
+
+            % Create VectoriniialEditFieldLabel
+            comp.VectoriniialEditFieldLabel = uilabel(comp);
+            comp.VectoriniialEditFieldLabel.HorizontalAlignment = 'right';
+            comp.VectoriniialEditFieldLabel.FontSize = 14;
+            comp.VectoriniialEditFieldLabel.FontColor = [0.302 0.7451 0.9333];
+            comp.VectoriniialEditFieldLabel.Position = [17 310 80 22];
+            comp.VectoriniialEditFieldLabel.Text = 'Vector inițial';
+
+            % Create VectoriniialEditField
+            comp.VectoriniialEditField = uieditfield(comp, 'text');
+            comp.VectoriniialEditField.FontSize = 14;
+            comp.VectoriniialEditField.FontColor = [0.302 0.7451 0.9333];
+            comp.VectoriniialEditField.Position = [112 310 100 22];
+
+            % Create calculeazButton
+            comp.calculeazButton = uibutton(comp, 'push');
+            comp.calculeazButton.ButtonPushedFcn = matlab.apps.createCallbackFcn(comp, @calculeazButtonPushed, true);
+            comp.calculeazButton.FontSize = 14;
+            comp.calculeazButton.FontColor = [0.0745 0.6235 1];
+            comp.calculeazButton.Position = [410 10 156 40];
+            comp.calculeazButton.Text = 'calculează';
+
+            % Create RezultateTextAreaLabel
+            comp.RezultateTextAreaLabel = uilabel(comp);
+            comp.RezultateTextAreaLabel.HorizontalAlignment = 'right';
+            comp.RezultateTextAreaLabel.FontSize = 14;
+            comp.RezultateTextAreaLabel.FontColor = [0.302 0.7451 0.9333];
+            comp.RezultateTextAreaLabel.Position = [22 267 64 22];
+            comp.RezultateTextAreaLabel.Text = 'Rezultate';
+
+            % Create RezultateTextArea
+            comp.RezultateTextArea = uitextarea(comp);
+            comp.RezultateTextArea.FontSize = 14;
+            comp.RezultateTextArea.FontColor = [0.302 0.7451 0.9333];
+            comp.RezultateTextArea.Position = [101 231 150 60];
+        end
+    end
+end
